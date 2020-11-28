@@ -1,17 +1,14 @@
 package com.company;
 
-import java.io.FileWriter;
-import java.io.Writer;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Main {
 
     enum SortTypes {
-        incr(Integer::compareTo),
-        decr((a, b) -> { return b.compareTo(a);}),
-        incrByDigits((a, b) -> { return countDigits(a).compareTo(countDigits(b));}),
-        decrByDigits((a, b) -> { return countDigits(b).compareTo(countDigits(a));});
+        INCR(Integer::compareTo),
+        DECR((a, b) -> { return b.compareTo(a);}),
+        INCR_BY_DIGITS((a, b) -> { return countDigits(a).compareTo(countDigits(b));}),
+        DECR_BY_DIGITS((a, b) -> { return countDigits(b).compareTo(countDigits(a));});
 
         Comparator<Integer> comparator;
 
@@ -22,11 +19,20 @@ public class Main {
         public Comparator<Integer> getComparator() {
             return comparator;
         }
+
+        public static SortTypes fromIntValue(int value) {
+            for (SortTypes type : SortTypes.values()) {
+                if (type.ordinal() == value) {
+                    return type;
+                }
+            }
+            throw new IllegalArgumentException("no such enum constant with value = " + value);
+        }
     }
 
     public static void main(String[] args) {
         int n = 0;
-        SortTypes sortingType = SortTypes.incr;
+        SortTypes sortingType = SortTypes.INCR;
         List<Integer> array = new ArrayList<>();
         try (Scanner scanner = new Scanner(System.in)) {
             System.out.println("Enter size of array");
@@ -36,23 +42,13 @@ public class Main {
                     "1 - decreasing,\n" +
                     "2 - increasing number of digits\n" +
                     "3 - decreasing number of digits):");
-            switch (scanner.nextInt()) {
-                case 0:
-                    sortingType = SortTypes.incr;
-                    break;
-                case 1:
-                    sortingType = SortTypes.decr;
-                    break;
-                case 2:
-                    sortingType = SortTypes.incrByDigits;
-                    break;
-                case 3:
-                    sortingType = SortTypes.decrByDigits;
-                    break;
-                default:
-                    System.out.println("wrong type. Default type(increasing) will be used");
-                    sortingType = SortTypes.incr;
+            try {
+                sortingType = SortTypes.fromIntValue(scanner.nextInt());
+            } catch (IllegalArgumentException ex) {
+                System.out.println("wrong type. Default type(increasing) will be used");
+                sortingType = SortTypes.INCR;
             }
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
